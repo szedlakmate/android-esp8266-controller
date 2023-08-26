@@ -20,8 +20,8 @@ import java.net.URL
 class FirstFragment : Fragment() {
 
   private var _binding: FragmentFirstBinding? = null
-  private val HOST = "http://192.168.50.18:3000"
-  val url = URL("$HOST/blink")
+  private val HOST = "http://192.168.50.125:3000"
+  val url = URL("$HOST/v1/animation")
 
   // This property is only valid between onCreateView and
   // onDestroyView.
@@ -43,7 +43,7 @@ class FirstFragment : Fragment() {
     binding.buttonOn.setOnClickListener {
       Log.i(TAG, "Button ON clicked")
       try {
-        sendRequest("true")
+        sendHttpRequest(url, "{BPM:60.0, BRIGHTNESS:120}")
       } catch (e: Exception) {
         Log.w(TAG, "Error: ${e.message}")
       }
@@ -52,7 +52,7 @@ class FirstFragment : Fragment() {
     binding.buttonOff.setOnClickListener {
       Log.i(TAG, "Button OFF clicked")
       try {
-        sendRequest("false")
+        sendHttpRequest(url, "{BPM:1.0,BRIGHTNESS:50}")
       } catch (e: Exception) {
         Log.w(TAG, "Error: ${e.message}")
       }
@@ -60,7 +60,7 @@ class FirstFragment : Fragment() {
   }
 
   @OptIn(DelicateCoroutinesApi::class)
-  private fun sendRequest(data: String) {
+  private fun sendHttpRequest(url: URL, data: String) {
     GlobalScope.launch(Dispatchers.IO) {
       var responseCode = -1
       try {
