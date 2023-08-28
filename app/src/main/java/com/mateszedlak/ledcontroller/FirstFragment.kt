@@ -1,5 +1,6 @@
 package com.mateszedlak.ledcontroller
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -43,7 +44,7 @@ class FirstFragment : Fragment() {
     binding.buttonOn.setOnClickListener {
       Log.i(TAG, "Button ON clicked")
       try {
-        sendHttpRequest(url, "{BPM:60.0, BRIGHTNESS:120}")
+        sendHttpRequest(url, "{REVERSED:1,WAVE_LENGTH_SCALE:0.333}")
       } catch (e: Exception) {
         Log.w(TAG, "Error: ${e.message}")
       }
@@ -52,15 +53,17 @@ class FirstFragment : Fragment() {
     binding.buttonOff.setOnClickListener {
       Log.i(TAG, "Button OFF clicked")
       try {
-        sendHttpRequest(url, "{BPM:1.0,BRIGHTNESS:50}")
+        sendHttpRequest(url, "{REVERSED:0,WAVE_LENGTH_SCALE:2.0}")
       } catch (e: Exception) {
         Log.w(TAG, "Error: ${e.message}")
       }
     }
+
+    binding.compassButton.setOnClickListener { openCompassActivity() }
   }
 
   @OptIn(DelicateCoroutinesApi::class)
-  private fun sendHttpRequest(url: URL, data: String) {
+  fun sendHttpRequest(url: URL, data: String) {
     GlobalScope.launch(Dispatchers.IO) {
       var responseCode = -1
       try {
@@ -87,6 +90,11 @@ class FirstFragment : Fragment() {
   override fun onDestroyView() {
     super.onDestroyView()
     _binding = null
+  }
+
+  fun openCompassActivity() {
+    val intent = Intent(this.context, CompassActivity::class.java)
+    startActivity(intent)
   }
 
   companion object {
