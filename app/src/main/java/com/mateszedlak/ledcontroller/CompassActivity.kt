@@ -27,7 +27,7 @@ class CompassActivity : Activity(), SensorEventListener {
   private var lastUpdateTime = System.currentTimeMillis()
   private var lastBrightnessValue = -1 // Initialize with a value that's not achievable
 
-  private val MIN_UPDATE_INTERVAL: Long = 200 // Minimum interval between updates in milliseconds
+  private val MIN_UPDATE_INTERVAL: Long = 100 // Minimum interval between updates in milliseconds
 
   private val handler: Handler = Handler(Looper.getMainLooper())
 
@@ -78,7 +78,8 @@ class CompassActivity : Activity(), SensorEventListener {
         Log.d(TAG, data)
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "text/plain")
+        connection.setRequestProperty("Content-Type", "application/json")
+        connection.setRequestProperty("Connection", "Keep-Alive") // Set Keep-Alive header
         connection.doOutput = true
 
         val outputStream = DataOutputStream(connection.outputStream)
