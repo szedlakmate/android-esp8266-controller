@@ -8,15 +8,7 @@ import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.TextView
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.DataOutputStream
-import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.abs
 
@@ -34,6 +26,8 @@ class CompassActivity : Activity(), SensorEventListener {
   private var sensorManager: SensorManager? = null
   private var compassSensor: Sensor? = null
   private var deviationTextView: TextView? = null
+  val utilities = Utilities()
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_compass)
@@ -44,7 +38,7 @@ class CompassActivity : Activity(), SensorEventListener {
 
   override fun onResume() {
     super.onResume()
-    sensorManager!!.registerListener(this, compassSensor, SensorManager.SENSOR_DELAY_NORMAL)
+    sensorManager!!.registerListener(this, compassSensor, SensorManager.SENSOR_DELAY_GAME)
   }
 
   override fun onPause() {
@@ -65,35 +59,8 @@ class CompassActivity : Activity(), SensorEventListener {
 
       handler.post {
         deviationTextView!!.text = "Deviation from North: $deviation degrees"
-        sendHttpRequest(url, "{BRIGHTNESS:${brightnessValue}}")
+        utilities.sendHttpRequest(url, "{BRIGHTNESS:${brightnessValue}}")
       }
-    }
-  }
-
-  @OptIn(DelicateCoroutinesApi::class)
-  fun sendHttpRequest(url: URL, data: String) {
-    GlobalScope.launch(Dispatchers.IO) {
-      var responseCode = -1
-      try {
-        Log.d(TAG, data)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "application/json")
-        connection.setRequestProperty("Connection", "Keep-Alive") // Set Keep-Alive header
-        connection.doOutput = true
-
-        val outputStream = DataOutputStream(connection.outputStream)
-        outputStream.writeBytes(data)
-        outputStream.flush()
-        outputStream.close()
-
-        responseCode = connection.responseCode
-      } catch (e: Exception) {
-        Log.w(TAG, "Error: ${e.message}")
-        e.printStackTrace()
-      }
-
-      withContext(Dispatchers.Main) { Log.d(TAG, "Response code: $responseCode") }
     }
   }
 

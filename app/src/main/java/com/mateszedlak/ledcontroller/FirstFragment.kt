@@ -59,7 +59,8 @@ class FirstFragment : Fragment() {
       }
     }
 
-    binding.compassButton.setOnClickListener { openCompassActivity() }
+    binding.buttonCompass.setOnClickListener { openCompassActivity() }
+    binding.buttonAccelerometer.setOnClickListener { openAccelerometerActivity() }
   }
 
   @OptIn(DelicateCoroutinesApi::class)
@@ -94,6 +95,11 @@ class FirstFragment : Fragment() {
 
   fun openCompassActivity() {
     val intent = Intent(this.context, CompassActivity::class.java)
+    startActivity(intent)
+  }
+
+  fun openAccelerometerActivity() {
+    val intent = Intent(this.context, AccelerometerActivity::class.java)
     startActivity(intent)
   }
 
