@@ -49,7 +49,7 @@ class AccelerometerActivity : Activity(), SensorEventListener {
 
   override fun onResume() {
     super.onResume()
-    sensorManager!!.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME)
+    sensorManager!!.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST)
   }
 
   override fun onPause() {

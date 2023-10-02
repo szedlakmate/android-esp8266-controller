@@ -47,7 +47,7 @@ class CompassActivity : Activity(), SensorEventListener {
 
   override fun onResume() {
     super.onResume()
-    sensorManager!!.registerListener(this, compassSensor, SensorManager.SENSOR_DELAY_GAME)
+    sensorManager!!.registerListener(this, compassSensor, SensorManager.SENSOR_DELAY_FASTEST)
   }
 
   override fun onPause() {
