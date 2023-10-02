@@ -10,7 +10,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.TextView
-import java.net.URL
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.WebSocket
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -18,24 +20,28 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class AccelerometerActivity : Activity(), SensorEventListener {
-  private val HOST = "http://192.168.50.125:3000"
-  val url = URL("$HOST/v1/animation")
+  private val HOST = "ws://esp8266.local:81/"
 
   private var lastUpdateTime = System.currentTimeMillis()
   private var lastBrightnessValue = -1 // Initialize with a value that's not achievable
 
-  private val MIN_UPDATE_INTERVAL: Long = 150 // Minimum interval between updates in milliseconds
+  private val MIN_UPDATE_INTERVAL: Long = 0 // Minimum interval between updates in milliseconds
 
   private val handler: Handler = Handler(Looper.getMainLooper())
 
   private var sensorManager: SensorManager? = null
   private var accelerometerSensor: Sensor? = null
   private var accelerationTextView: TextView? = null
-  val utilities = Utilities()
+
+  private lateinit var webSocketListener: WebSocketListener
+  private val okHttpClient = OkHttpClient()
+  private var webSocket: WebSocket? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_accelerometer)
+    webSocketListener = WebSocketListener()
+    webSocket = okHttpClient.newWebSocket(createRequest(), webSocketListener)
     accelerationTextView = findViewById(R.id.accelerationTextView)
     sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
     accelerometerSensor = sensorManager!!.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
@@ -82,10 +88,18 @@ class AccelerometerActivity : Activity(), SensorEventListener {
         handler.post {
           accelerationTextView!!.text =
               "X: $accelerationForceX    Y: $accelerationForceY    Z:$accelerationForceZ"
-          utilities.sendHttpRequest(url, "{BRIGHTNESS:${appliedBrightness}}")
+
+          webSocket?.send("{BRIGHTNESS:$appliedBrightness}")
+          // utilities.sendHttpRequest(url, "{BRIGHTNESS:${appliedBrightness}}")
         }
       }
     }
+  }
+
+  private fun createRequest(): Request {
+    val websocketURL = HOST
+
+    return Request.Builder().url(websocketURL).build()
   }
 
   override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {

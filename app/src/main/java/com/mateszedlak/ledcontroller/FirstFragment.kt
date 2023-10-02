@@ -8,13 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.mateszedlak.ledcontroller.databinding.FragmentFirstBinding
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.DataOutputStream
-import java.net.HttpURLConnection
 import java.net.URL
 
 /** A simple [Fragment] subclass as the default destination in the navigation. */
@@ -44,7 +37,7 @@ class FirstFragment : Fragment() {
     binding.buttonOn.setOnClickListener {
       Log.i(TAG, "Button ON clicked")
       try {
-        sendHttpRequest(url, "{REVERSED:1,WAVE_LENGTH_SCALE:0.333}")
+        //  sendHttpRequest(url, "{REVERSED:1,WAVE_LENGTH_SCALE:0.333}")
       } catch (e: Exception) {
         Log.w(TAG, "Error: ${e.message}")
       }
@@ -53,7 +46,7 @@ class FirstFragment : Fragment() {
     binding.buttonOff.setOnClickListener {
       Log.i(TAG, "Button OFF clicked")
       try {
-        sendHttpRequest(url, "{REVERSED:0,WAVE_LENGTH_SCALE:2.0}")
+        //  sendHttpRequest(url, "{REVERSED:0,WAVE_LENGTH_SCALE:2.0}")
       } catch (e: Exception) {
         Log.w(TAG, "Error: ${e.message}")
       }
@@ -61,31 +54,6 @@ class FirstFragment : Fragment() {
 
     binding.buttonCompass.setOnClickListener { openCompassActivity() }
     binding.buttonAccelerometer.setOnClickListener { openAccelerometerActivity() }
-  }
-
-  @OptIn(DelicateCoroutinesApi::class)
-  fun sendHttpRequest(url: URL, data: String) {
-    GlobalScope.launch(Dispatchers.IO) {
-      var responseCode = -1
-      try {
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "text/plain")
-        connection.doOutput = true
-
-        val outputStream = DataOutputStream(connection.outputStream)
-        outputStream.writeBytes(data)
-        outputStream.flush()
-        outputStream.close()
-
-        responseCode = connection.responseCode
-      } catch (e: Exception) {
-        Log.w(TAG, "Error: ${e.message}")
-        e.printStackTrace()
-      }
-
-      withContext(Dispatchers.Main) { Log.d(TAG, "Response code: $responseCode") }
-    }
   }
 
   override fun onDestroyView() {
