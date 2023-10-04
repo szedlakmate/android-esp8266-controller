@@ -25,7 +25,7 @@ class AccelerometerActivity : Activity(), SensorEventListener {
   private var lastUpdateTime = System.currentTimeMillis()
   private var lastBrightnessValue = -1 // Initialize with a value that's not achievable
 
-  private val MIN_UPDATE_INTERVAL: Long = 0 // Minimum interval between updates in milliseconds
+  private val MIN_UPDATE_INTERVAL: Int = 0 // Minimum interval between updates in milliseconds
 
   private val handler: Handler = Handler(Looper.getMainLooper())
 
@@ -49,7 +49,7 @@ class AccelerometerActivity : Activity(), SensorEventListener {
 
   override fun onResume() {
     super.onResume()
-    sensorManager!!.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST)
+    sensorManager!!.registerListener(this, accelerometerSensor, 20)
   }
 
   override fun onPause() {
@@ -58,7 +58,6 @@ class AccelerometerActivity : Activity(), SensorEventListener {
   }
 
   override fun onSensorChanged(event: SensorEvent) {
-    val SENSOR_SENSITIVITY = 0.1f
     val currentTime = System.currentTimeMillis()
     val accelerationForceX = event.values[0]
     val accelerationForceY = event.values[1]

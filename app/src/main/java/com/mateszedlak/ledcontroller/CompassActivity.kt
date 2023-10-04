@@ -13,16 +13,20 @@ import android.widget.TextView
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
+import okio.ByteString.Companion.toByteString
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import kotlin.math.abs
 
 class CompassActivity : Activity(), SensorEventListener {
   // private val HOST = "ws://esp8266.local:81/"
-  private val HOST = "ws://192.168.50.165:81/"
+  // private val HOST = "ws://192.168.50.165:81/"
+  private val HOST = "ws://192.168.50.125:81/"
 
   private var lastUpdateTime = System.currentTimeMillis()
   private var lastBrightnessValue = -1 // Initialize with a value that's not achievable
 
-  private val MIN_UPDATE_INTERVAL: Long = 0 // Minimum interval between updates in milliseconds
+  private val MIN_UPDATE_INTERVAL: Int = 50 // Minimum interval between updates in milliseconds
 
   private val handler: Handler = Handler(Looper.getMainLooper())
 
@@ -47,7 +51,7 @@ class CompassActivity : Activity(), SensorEventListener {
 
   override fun onResume() {
     super.onResume()
-    sensorManager!!.registerListener(this, compassSensor, SensorManager.SENSOR_DELAY_FASTEST)
+    sensorManager!!.registerListener(this, compassSensor, 20)
   }
 
   override fun onPause() {
@@ -67,8 +71,15 @@ class CompassActivity : Activity(), SensorEventListener {
       lastUpdateTime = currentTime
 
       deviationTextView!!.text = "Deviation from North: $deviation degrees"
-      webSocket?.send("{BRIGHTNESS:$brightnessValue}")
-      Log.d(TAG, "onSensorChanged: $deviation")
+
+      val buffer = ByteBuffer.allocate(4)
+      buffer.order(ByteOrder.LITTLE_ENDIAN)
+      buffer.putInt(brightnessValue)
+      val byteArray = buffer.array()
+      webSocket?.send(byteArray.toByteString())
+
+      Log.d(TAG, "$brightnessValue")
+      // Log.d(TAG, "onSensorChanged: $deviation")
     }
   }
 
